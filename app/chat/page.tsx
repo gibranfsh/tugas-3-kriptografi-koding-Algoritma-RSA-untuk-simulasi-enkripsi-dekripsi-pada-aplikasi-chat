@@ -61,6 +61,8 @@ export default function Chat() {
                 e: BigInt(bobSavedKey.e),
                 d: BigInt(bobSavedKey.d),
             });
+        } else {
+            router.push("/");
         }
         setIsLoading(false);
     }, []);

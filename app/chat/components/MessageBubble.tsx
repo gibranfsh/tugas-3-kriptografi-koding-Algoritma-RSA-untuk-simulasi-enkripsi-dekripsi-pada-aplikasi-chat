@@ -1,5 +1,6 @@
-import { encryptRSA } from "@/crypto/RSA";
+import { encryptRSA, decryptRSA } from "@/crypto/RSA";
 import React, { useEffect, useState } from "react";
+import { FaArrowRight, FaEye, FaEyeSlash, FaDownload } from "react-icons/fa";
 
 interface MessageProps {
     sender: string;
@@ -15,10 +16,22 @@ export const MessageBubble: React.FC<MessageProps> = ({ sender, text, file, time
     const bubbleColor = isSentByAlice ? "bg-blue-600" : "bg-green-600";
     const textColor = isSentByAlice ? "text-white" : "text-black";
 
+    const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
+    const [decryptedText, setDecryptedText] = useState<string>("");
+
+    const toggleEncryption = () => {
+        if (isEncrypted) {
+            setDecryptedText(decryptRSA(text, bobKey.d, bobKey.n));
+        } else {
+            setDecryptedText(encryptRSA(decryptedText, bobKey.e, bobKey.n));
+        }
+        setIsEncrypted((prev) => !prev);
+    };
+
     return (
         <div className={`flex justify-between mb-2 ${isSentByAlice ? "flex-row" : "flex-row-reverse"}`}>
             <div className={`flex justify-between flex-col max-w-[40%] rounded-lg p-3 ${bubbleColor} ${textColor}`}>
-                <p className="text-sm text-wrap">{text}</p>
+                <p className="text-sm text-wrap overflow-y-auto overflow-x-hidden max-h-14 no-scrollbar">{text}</p>
                 {file && (
                     <div className="flex items-center mt-2">
                         <span className="mr-2">File:</span>
@@ -27,15 +40,28 @@ export const MessageBubble: React.FC<MessageProps> = ({ sender, text, file, time
                 )}
                 <p className="text-xs text-gray-300 mt-1">{sender} - {timestamp}</p>
             </div>
+            <div className="w-full max-w-[20%] flex items-center justify-center">
+                <FaArrowRight className={`text-5xl ${isSentByAlice ? "text-blue-600" : "text-green-600 rotate-180"} mx-2`} />
+            </div>
             <div className={`max-w-[40%] rounded-lg p-3 ${bubbleColor} ${textColor}`}>
-                <p className="text-sm text-wrap overflow-y-auto max-h-14 no-scrollbar">{encryptRSA(text, bobKey.e, bobKey.n)}</p>
+                <p className="text-sm text-wrap overflow-y-auto overflow-x-hidden max-h-14 no-scrollbar">{encryptRSA(text, bobKey.e, bobKey.n)}</p>
                 {file && (
                     <div className="flex items-center mt-2">
                         <span className="mr-2">File:</span>
                         <span className="text-xs font-semibold">{file.name}</span>
                     </div>
                 )}
-                <p className="text-xs text-gray-300 mt-1">{sender} - {timestamp}</p>
+                <div className="flex justify-between text-gray-300 mt-1">
+                    <p className="text-xs">{sender} - {timestamp}</p>
+                    <div className="flex items-center gap-2.5">
+                        <button className="text-sm font-semibold" onClick={toggleEncryption}>
+                            {isEncrypted ? <FaEyeSlash className="" /> : <FaEye className="" />}
+                        </button>
+                        <button className="text-sm font-semibold">
+                            <FaDownload className="" />
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );
