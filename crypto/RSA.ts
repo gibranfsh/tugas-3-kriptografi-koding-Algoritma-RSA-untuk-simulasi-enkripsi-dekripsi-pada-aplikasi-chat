@@ -1,4 +1,5 @@
 import { randomBytes } from "crypto";
+import { saveAs } from "file-saver";
 
 /* Fungsi-fungsi utama */
 
@@ -41,7 +42,7 @@ const encryptRSA = (text: string, e: bigint, n: bigint): string => {
 
 // Fungsi untuk mendekripsi pesan terenkripsi menjadi teks ASCII
 const decryptRSA = (encryptedMessage: string, d: bigint, n: bigint): string => {
-  const encryptedChars = encryptedMessage.trim().split(" "); // Split the encrypted message by space delimiter
+  const encryptedChars = encryptedMessage.trim().split(" ");
   let decryptedText = "";
   for (let i = 0; i < encryptedChars.length; i++) {
     const encryptedChar = BigInt(encryptedChars[i]);
@@ -49,6 +50,40 @@ const decryptRSA = (encryptedMessage: string, d: bigint, n: bigint): string => {
     decryptedText += String.fromCharCode(Number(decryptedChar));
   }
   return decryptedText;
+};
+
+// Fungsi untuk menyimpan kunci ke file
+const saveKeysToFile = (
+  publicKey: { e: bigint; n: bigint },
+  privateKey: { d: bigint; n: bigint }
+) => {
+  const publicKeyPEM =
+    `-----BEGIN PUBLIC KEY-----\n` +
+    Buffer.from(publicKey.e.toString()).toString("base64") +
+    "\n" +
+    Buffer.from(publicKey.n.toString()).toString("base64") +
+    "\n" +
+    `-----END PUBLIC KEY-----`;
+
+  const privateKeyPEM =
+    `-----BEGIN RSA PRIVATE KEY-----\n` +
+    Buffer.from(privateKey.d.toString()).toString("base64") +
+    "\n" +
+    Buffer.from(privateKey.n.toString()).toString("base64") +
+    "\n" +
+    `-----END RSA PRIVATE KEY-----`;
+
+  // Membuat blob dari data kunci
+  const publicKeyBlob = new Blob([publicKeyPEM], {
+    type: "text/plain;charset=utf-8",
+  });
+  const privateKeyBlob = new Blob([privateKeyPEM], {
+    type: "text/plain;charset=utf-8",
+  });
+
+  // Menyimpan blob sebagai file dengan ekstensi .txt
+  saveAs(publicKeyBlob, "public_key.pub.txt");
+  saveAs(privateKeyBlob, "private_key.pri.txt");
 };
 
 /* Fungsi-fungsi helper */
@@ -164,4 +199,4 @@ const randomNumberInRange = (min: bigint, max: bigint): bigint => {
   return randomNum + min;
 };
 
-export { generateKeyRSA, encryptRSA, decryptRSA };
+export { generateKeyRSA, encryptRSA, decryptRSA, saveKeysToFile };
