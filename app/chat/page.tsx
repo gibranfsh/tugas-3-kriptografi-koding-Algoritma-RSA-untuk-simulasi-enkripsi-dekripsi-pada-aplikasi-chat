@@ -56,7 +56,6 @@ export default function Chat() {
     ) => {
         const file = event.target.files?.[0];
         if (file) {
-            console.log(file)
             const reader = new FileReader();
             reader.onload = function () {
                 const content = reader.result;
