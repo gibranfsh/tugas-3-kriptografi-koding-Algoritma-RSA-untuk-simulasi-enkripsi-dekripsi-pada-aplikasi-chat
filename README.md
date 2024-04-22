@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Implementasi Algoritma RSA pada Aplikasi Percakapan
 
-## Getting Started
+## Tugas Kecil 3 - II4031 Kriptografi dan Koding
 
-First, run the development server:
+## Instalasi
+
+1. Clone repository
+
+```bash
+git clone https://github.com/gibranfsh/tugas-3-kriptografi-koding-Algoritma-RSA-untuk-simulasi-enkripsi-dekripsi-pada-aplikasi-chat
+```
+
+2. Move on to the project directory
+
+```bash
+cd tugas-3-kriptografi-koding-Algoritma-RSA-untuk-simulasi-enkripsi-dekripsi-pada-aplikasi-chat
+```
+
+3. Open the project with your favorite IDE (for me it's VSCode)
+
+```bash
+code .
+```
+
+4. Open a terminal and install the dependencies
+
+```bash
+npm install
+```
+
+5. Run the project in development mode (Make sure you have Node.js installed)
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Makalah dari Aplikasi
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Link : https://docs.google.com/document/d/1Vmlusf-UDRAuDsCunP0-fodMsgI-Y4katEQ_fO3KlAI/edit?usp=sharing
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Kontributor
 
-## Learn More
+- 18221069 - Gibran Fasha Ghazanfar
+- 18221123 - Abraham Megantoro Samudra
 
-To learn more about Next.js, take a look at the following resources:
+## Tabel Fitur
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+| No  | Feature                                                                                                       | Success (✔) | Fail (❌) | Details                                                                                                                                             |
+| :-: | ------------------------------------------------------------------------------------------------------------- | :---------- | :-------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
+|  1  | Program dapat men-generate public key dan private key menggunakan algoritma RSA                             | ✔           |           | Program men-generate kunci dengan panjang kunci 1024 bit |
+|  2  | Program dapat menyimpan public key dan private key dalam file terpisah dengan format nama <nama_orang>_public_key.pub.txt dan <nama_orang>_private_key.pri.txt | ✔           |           | 
+|  3  | Program dapat menerima pesan input dari pengguna berupa file sembarang (file text ataupun file biner) ataupun pesan yang diketikkan dari papan-ketik.          | ✔           |           | Pesan yang dimasukkan pengguna dibatasi isinya hanya berupa karakter ASCII (namun, asumsi tidak ada karakter Unicode seperti emoji, huruf Jepang, dan seterusnya) |
+|  4  | Program dapat mengenkripsi plaintext dan mendekripsi ciphertext menjadi plaintext semula dengan algoritma RSA.                                                             | ✔           |           |
+|  5  | Program menampilkan teks plaintext dan ciphertext di layar percakapan. Khusus untuk ciphertext ditampilkan dalam notasi base64.                                   | ✔           |           |
+|  6  | Program dapat menyimpan ciphertext ke dalam file.                                                          | ✔           |           |
+|  7  | Program dapat mendekripsi file ciphertext menjadi file plaintext.                                          | ✔           |           |
