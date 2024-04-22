@@ -48,8 +48,7 @@ export const MessageBubble: React.FC<MessageProps> = ({
 
   const handleSentFileDownload = (downloadAs: string) => {
     if (file) {
-      console.log(fileRead)
-      const data = downloadAs === "ciphertext" ? encryptRSA(fileRead as Uint8Array, bobKey.e, bobKey.n) : decryptRSA(encryptRSA(fileRead as Uint8Array, bobKey.e, bobKey.n), bobKey.d, bobKey.n).toString()
+      const data = downloadAs === "ciphertext" ? encryptRSA(fileRead as Uint8Array, bobKey.e, bobKey.n) : decryptRSA(encryptRSA(fileRead as Uint8Array, bobKey.e, bobKey.n), bobKey.d, bobKey.n)
       const blob = new Blob([data], { type: file.type });
       saveAs(blob, file.name);
     }
