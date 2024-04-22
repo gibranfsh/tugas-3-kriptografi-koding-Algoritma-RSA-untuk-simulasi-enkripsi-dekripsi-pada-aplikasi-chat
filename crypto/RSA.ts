@@ -35,9 +35,9 @@ const encryptRSA = (text: string, e: bigint, n: bigint): string => {
   for (let i = 0; i < text.length; i++) {
     const charCode = BigInt(text.charCodeAt(i));
     const encryptedChar = modPow(charCode, e, n);
-    encryptedMessage += encryptedChar.toString() + " "; // Add a space delimiter between encrypted characters
+    encryptedMessage += encryptedChar.toString() + " "; 
   }
-  return encryptedMessage.trim(); // Remove trailing space
+  return encryptedMessage.trim();
 };
 
 // Fungsi untuk mendekripsi pesan terenkripsi menjadi teks ASCII

@@ -10,7 +10,6 @@ interface Key {
 }
 
 export default function Home() {
-  const [bits, setBits] = useState<number>(16);
   const [aliceKey, setAliceKey] = useState<Key>({
     n: BigInt(0),
     e: BigInt(0),
