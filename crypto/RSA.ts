@@ -29,27 +29,65 @@ const generateKeyRSA = (): {
   };
 };
 
-// Fungsi untuk mengenkripsi pesan teks ASCII menjadi bilangan bigint
-const encryptRSA = (text: string, e: bigint, n: bigint): string => {
-  let encryptedMessage = "";
-  for (let i = 0; i < text.length; i++) {
-    const charCode = BigInt(text.charCodeAt(i));
-    const encryptedChar = modPow(charCode, e, n);
-    encryptedMessage += encryptedChar.toString() + " "; 
+// Fungsi untuk mengenkripsi teks atau berkas menjadi string yang dienkripsi dengan base64
+const encryptRSA = (
+  input: string | ArrayBuffer | Uint8Array,
+  e: bigint,
+  n: bigint
+): string => {
+  let text = input;
+  if (typeof input !== "string") {
+    // Jika input berupa berkas atau ArrayBuffer atau Uint8Array, konversi ke Uint8Array
+    if (input instanceof ArrayBuffer) {
+      text = new Uint8Array(input);
+    } else if (input instanceof Uint8Array) {
+      text = input;
+    }
   }
-  return encryptedMessage.trim();
+
+  let encryptedMessage = "";
+  if (typeof text === "string") {
+    for (let i = 0; i < text.length; i++) {
+      const charCode = BigInt(text.charCodeAt(i));
+      const encryptedChar = modPow(charCode, e, n);
+      encryptedMessage += encryptedChar.toString() + " "; // Tambahkan delimiter spasi antara karakter yang dienkripsi
+    }
+  }
+  
+  if (text instanceof Uint8Array) {
+    for (let i = 0; i < text.length; i++) {
+      const charCode = BigInt(text[i]);
+      const encryptedChar = modPow(charCode, e, n);
+      encryptedMessage += encryptedChar.toString() + " "; // Tambahkan delimiter spasi antara karakter yang dienkripsi
+    }
+  }
+
+  // Encode pesan terenkripsi sebagai base64
+  return Buffer.from(encryptedMessage.trim()).toString("base64");
 };
 
-// Fungsi untuk mendekripsi pesan terenkripsi menjadi teks ASCII
-const decryptRSA = (encryptedMessage: string, d: bigint, n: bigint): string => {
-  const encryptedChars = encryptedMessage.trim().split(" ");
+// Dekripsi pesan terenkripsi dari string yang dienkripsi base64 menjadi teks atau berkas
+const decryptRSA = (
+  encryptedMessage: string,
+  d: bigint,
+  n: bigint
+): string | Uint8Array => {
+  // Mendekode pesan terenkripsi yang dienkripsi dalam base64
+  const decodedMessage = Buffer.from(encryptedMessage, "base64").toString();
+  const encryptedChars = decodedMessage.trim().split(" ");
+
   let decryptedText = "";
   for (let i = 0; i < encryptedChars.length; i++) {
     const encryptedChar = BigInt(encryptedChars[i]);
     const decryptedChar = modPow(encryptedChar, d, n);
     decryptedText += String.fromCharCode(Number(decryptedChar));
   }
-  return decryptedText;
+
+  // Memeriksa apakah teks terdekripsi adalah string yang dienkripsi UTF-8 yang valid
+  const isValidUTF8 = /^[\x00-\x7F]*$/.test(decryptedText);
+  return isValidUTF8
+    ? decryptedText
+    : Uint8Array.from(decryptedText.split("").map((c) => c.charCodeAt(0)));
 };
 
 // Fungsi untuk menyimpan kunci ke file
