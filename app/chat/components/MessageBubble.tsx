@@ -35,7 +35,7 @@ export const MessageBubble: React.FC<MessageProps> = ({
   };
 
   const handleTextDownload = () => {
-    const data = isEncrypted ? encryptRSA(text, bobKey.e, bobKey.n) : decryptRSA(encryptRSA(text, bobKey.e, bobKey.n), bobKey.d, bobKey.n).toString()
+    const data = isEncrypted ? encryptRSA(text, isSentByAlice ? aliceKey.e : bobKey.e, isSentByAlice ? aliceKey.n : bobKey.n) : decryptRSA(encryptRSA(text, isSentByAlice ? aliceKey.e : bobKey.e, isSentByAlice ? aliceKey.n : bobKey.n), isSentByAlice ? aliceKey.d : bobKey.d, isSentByAlice ? aliceKey.n : bobKey.n).toString()
     const blob = new Blob([data], { type: "text/plain;charset=utf-8" });
     saveAs(blob, `${isEncrypted ? "encrypted" : "decrypted"}_message_${new Date().toLocaleTimeString()}.txt`);
   }
@@ -48,7 +48,7 @@ export const MessageBubble: React.FC<MessageProps> = ({
 
   const handleSentFileDownload = (downloadAs: string) => {
     if (file) {
-      const data = downloadAs === "ciphertext" ? encryptRSA(fileRead as Uint8Array, bobKey.e, bobKey.n) : decryptRSA(encryptRSA(fileRead as Uint8Array, bobKey.e, bobKey.n), bobKey.d, bobKey.n)
+      const data = downloadAs === "ciphertext" ? encryptRSA(fileRead as Uint8Array, isSentByAlice ? aliceKey.e : bobKey.e, isSentByAlice ? aliceKey.n : bobKey.n) : decryptRSA(encryptRSA(fileRead as Uint8Array, bobKey.e, bobKey.n), isSentByAlice ? aliceKey.d : bobKey.d, isSentByAlice ? aliceKey.n : bobKey.n)
       const blob = new Blob([data], { type: file.type });
       saveAs(blob, file.name);
     }
@@ -88,11 +88,11 @@ export const MessageBubble: React.FC<MessageProps> = ({
       </div>
       <div className={`max-w-[40%] rounded-lg p-3 ${bubbleColor} ${textColor}`}>
         <p className="text-sm overflow-y-auto max-h-14 no-scrollbar">
-          {isEncrypted ? encryptRSA(text, bobKey.e, bobKey.n) : decryptRSA(encryptRSA(text, bobKey.e, bobKey.n), bobKey.d, bobKey.n).toString()}
+          {isEncrypted ? encryptRSA(text, isSentByAlice ? aliceKey.e : bobKey.e, isSentByAlice ? aliceKey.n : bobKey.n) : decryptRSA(encryptRSA(text, isSentByAlice ? aliceKey.e : bobKey.e, isSentByAlice ? aliceKey.n : bobKey.n), isSentByAlice ? aliceKey.d : bobKey.d, isSentByAlice ? aliceKey.n : bobKey.n).toString()}
         </p>
         {file && (
           <p className="text-sm text-wrap overflow-y-auto max-h-14 no-scrollbar">
-            {encryptRSA(file.toString(), bobKey.e, bobKey.n)}
+            {encryptRSA(file.toString(), isSentByAlice ? aliceKey.e : bobKey.e, isSentByAlice ? aliceKey.n : bobKey.n)}
           </p>
         )}
         <div className="flex justify-between text-gray-300 mt-1">

@@ -53,7 +53,7 @@ const encryptRSA = (
       encryptedMessage += encryptedChar.toString() + " "; // Tambahkan delimiter spasi antara karakter yang dienkripsi
     }
   }
-  
+
   if (text instanceof Uint8Array) {
     for (let i = 0; i < text.length; i++) {
       const charCode = BigInt(text[i]);
@@ -122,7 +122,7 @@ const saveKeysToFile = (
 
   // Menyimpan blob sebagai file dengan ekstensi .txt
   saveAs(publicKeyBlob, `${person}_public_key.pub.txt`);
-  saveAs(privateKeyBlob, `${person}_private_key.pem.txt`);
+  saveAs(privateKeyBlob, `${person}_private_key.pri.txt`);
 };
 
 /* Fungsi-fungsi helper */
