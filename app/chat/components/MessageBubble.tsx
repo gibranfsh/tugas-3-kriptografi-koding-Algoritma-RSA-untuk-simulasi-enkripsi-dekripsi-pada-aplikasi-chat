@@ -51,7 +51,7 @@ export const MessageBubble: React.FC<MessageProps> = ({
       <div
         className={`flex justify-between flex-col max-w-[40%] rounded-lg p-3 ${bubbleColor} ${textColor}`}
       >
-        <p className="text-sm text-wrap overflow-y-auto overflow-x-hidden max-h-14 no-scrollbar">
+        <p className="text-sm text-wrap overflow-y-auto max-h-14 no-scrollbar">
           {text}
         </p>
         {file && (
@@ -77,7 +77,7 @@ export const MessageBubble: React.FC<MessageProps> = ({
         />
       </div>
       <div className={`max-w-[40%] rounded-lg p-3 ${bubbleColor} ${textColor}`}>
-        <p className="text-sm text-wrap overflow-y-auto overflow-x-hidden max-h-14 no-scrollbar">
+        <p className="text-sm overflow-y-auto max-h-14 no-scrollbar">
           {text && encryptRSA(text, bobKey.e, bobKey.n)}
         </p>
         {file && (
