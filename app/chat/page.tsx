@@ -8,6 +8,7 @@ interface MessageData {
     sender: string;
     text: string;
     file?: File | null;
+    fileRead?: string | ArrayBuffer | Uint8Array;
 }
 
 interface Key {
@@ -29,6 +30,9 @@ export default function Chat() {
     const [inputMessageBob, setInputMessageBob] = useState<string>("");
     const [fileAlice, setFileAlice] = useState<File | null>(null);
     const [fileBob, setFileBob] = useState<File | null>(null);
+
+    const [fileReadAlice, setFileReadAlice] = useState<string | ArrayBuffer | Uint8Array>("");
+    const [fileReadBob, setFileReadBob] = useState<string | ArrayBuffer | Uint8Array>("");
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -52,20 +56,26 @@ export default function Chat() {
     ) => {
         const file = event.target.files?.[0];
         if (file) {
+            console.log(file)
             const reader = new FileReader();
-
             reader.onload = function () {
                 const content = reader.result;
 
                 if (file.type === "text/plain") {
-                    type === "Alice" ? setFileAlice(file) : setFileBob(file);
+                    type === "Alice" ? setFileReadAlice(content as string) : setFileReadBob(content as string);
                 } else {
                     const byteArray = new Uint8Array(content as ArrayBuffer);
-                    type === "Alice" ? setFileAlice(new File([byteArray], file.name)) : setFileBob(new File([byteArray], file.name));
+                    type === "Alice" ? setFileReadAlice(byteArray as Uint8Array) : setFileReadBob(byteArray as Uint8Array);
                 }
+
+                type === "Alice" ? setFileAlice(file) : setFileBob(file);
             }
 
-            reader.readAsArrayBuffer(file);
+            if (file.type === "text/plain") {
+                reader.readAsText(file);
+            } else {
+                reader.readAsArrayBuffer(file);
+            }
         }
     };
 
@@ -97,20 +107,21 @@ export default function Chat() {
         scrollToBottom();
     }, [messages]);
 
-    const handleMessageSubmit = (sender: string, text: string, file: File | null) => {
+    const handleMessageSubmit = (sender: string, text: string, file: File | null, fileRead: string | ArrayBuffer | Uint8Array) => {
         if (text.trim() !== "" || file) {
             setMessages((prevMessages) => [
                 ...prevMessages,
-                { sender: sender, text: text, file: file },
+                { sender: sender, text: text, file: file, fileRead: fileRead },
             ]);
             sender === "Alice" ? setInputMessageAlice("") : setInputMessageBob("");
             sender === "Alice" ? setFileAlice(null) : setFileBob(null);
+            sender === "Alice" ? setFileReadAlice("") : setFileReadBob("");
         }
     };
 
-    const handleKeyDown = (sender: string, text: string, file: File | null, e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (sender: string, text: string, file: File | null, fileRead: string | ArrayBuffer | Uint8Array, e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
-            handleMessageSubmit(sender, text, file);
+            handleMessageSubmit(sender, text, file, fileRead);
         }
     };
 
@@ -139,6 +150,7 @@ export default function Chat() {
                                     timestamp={new Date().toLocaleTimeString()}
                                     text={message.text}
                                     file={message.file}
+                                    fileRead={message.fileRead}
                                     aliceKey={aliceKey}
                                     bobKey={bobKey}
                                 />
@@ -163,7 +175,7 @@ export default function Chat() {
                                             type="text"
                                             value={inputMessageAlice}
                                             onChange={(e) => setInputMessageAlice(e.target.value)}
-                                            onKeyDown={(e) => handleKeyDown("Alice", inputMessageAlice, fileAlice, e)}
+                                            onKeyDown={(e) => handleKeyDown("Alice", inputMessageAlice, fileAlice, fileReadAlice, e)}
                                             placeholder="Type Alice's message..."
                                             className="bg-transparent focus:outline-none w-full"
                                         />
@@ -179,7 +191,7 @@ export default function Chat() {
                                     </div>
                                 )}
                                 <button
-                                    onClick={() => handleMessageSubmit("Alice", inputMessageAlice, fileAlice)}
+                                    onClick={() => handleMessageSubmit("Alice", inputMessageAlice, fileAlice, fileReadAlice)}
                                     className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r-md focus:outline-none"
                                 >
                                     Send
@@ -202,7 +214,7 @@ export default function Chat() {
                                             type="text"
                                             value={inputMessageBob}
                                             onChange={(e) => setInputMessageBob(e.target.value)}
-                                            onKeyDown={(e) => handleKeyDown("Bob", inputMessageBob, fileBob, e)}
+                                            onKeyDown={(e) => handleKeyDown("Bob", inputMessageBob, fileBob, fileReadBob, e)}
                                             placeholder="Type Bob's message..."
                                             className="bg-transparent focus:outline-none w-full"
                                         />
@@ -218,7 +230,7 @@ export default function Chat() {
                                     </div>
                                 )}
                                 <button
-                                    onClick={() => handleMessageSubmit("Bob", inputMessageBob, fileBob)}
+                                    onClick={() => handleMessageSubmit("Bob", inputMessageBob, fileBob, fileReadBob)}
                                     className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r-md focus:outline-none"
                                 >
                                     Send

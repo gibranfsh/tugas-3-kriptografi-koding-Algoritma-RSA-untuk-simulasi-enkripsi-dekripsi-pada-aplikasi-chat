@@ -8,6 +8,7 @@ interface MessageProps {
   sender: string;
   text: string;
   file?: File | null;
+  fileRead?: string | ArrayBuffer | Uint8Array;
   timestamp: string;
   aliceKey: { n: bigint; e: bigint; d: bigint };
   bobKey: { n: bigint; e: bigint; d: bigint };
@@ -17,6 +18,7 @@ export const MessageBubble: React.FC<MessageProps> = ({
   sender,
   text,
   file,
+  fileRead,
   timestamp,
   aliceKey,
   bobKey,
@@ -27,8 +29,6 @@ export const MessageBubble: React.FC<MessageProps> = ({
 
   const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
   const [showModal, setShowModal] = useState<boolean>(false);
-
-  const [fileRead, setFileRead] = useState<string | ArrayBuffer | Uint8Array>("" as string | ArrayBuffer | Uint8Array);
 
   const toggleEncryption = () => {
     setIsEncrypted((prev) => !prev);
@@ -48,36 +48,12 @@ export const MessageBubble: React.FC<MessageProps> = ({
 
   const handleSentFileDownload = (downloadAs: string) => {
     if (file) {
-      const data = downloadAs === "ciphertext" ? encryptRSA(fileRead as string, bobKey.e, bobKey.n) : decryptRSA(encryptRSA(fileRead as string, bobKey.e, bobKey.n), bobKey.d, bobKey.n).toString()
+      console.log(fileRead)
+      const data = downloadAs === "ciphertext" ? encryptRSA(fileRead as Uint8Array, bobKey.e, bobKey.n) : decryptRSA(encryptRSA(fileRead as Uint8Array, bobKey.e, bobKey.n), bobKey.d, bobKey.n).toString()
       const blob = new Blob([data], { type: file.type });
       saveAs(blob, file.name);
     }
   }
-
-  const handleReadFile = (
-    type: string
-  ) => {
-    if (file) {
-      const reader = new FileReader();
-
-      reader.onload = function () {
-        const content = reader.result;
-
-        if (file.type === "text/plain") {
-          setFileRead(content as string);
-        } else {
-            const byteArray = new Uint8Array(content as ArrayBuffer);
-            setFileRead(byteArray);
-        }
-      };
-
-      if (file.type === "text/plain") {
-        reader.readAsText(file);
-      } else {
-        reader.readAsArrayBuffer(file);
-      }
-    }
-  };
 
   return (
     <div
