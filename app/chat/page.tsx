@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useRef, useState } from "react";
 import { MessageBubble } from "./components/MessageBubble";
-import { IoMdAttach } from "react-icons/io";
+import { IoMdAttach, IoIosArrowBack } from "react-icons/io";
 import { useRouter } from "next/navigation";
 
 interface MessageData {
@@ -94,6 +94,7 @@ export default function Chat() {
             });
         } else {
             router.push("/");
+            window.location.href = "/";
         }
         setIsLoading(false);
     }, []);
@@ -124,10 +125,6 @@ export default function Chat() {
         }
     };
 
-    const handleFileChange = (sender: string, file: File | null) => {
-        sender === "Alice" ? setFileAlice(file) : setFileBob(file);
-    };
-
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
             {isLoading ? (
@@ -139,7 +136,13 @@ export default function Chat() {
                 </div>
             ) : (
                 <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-[70%]">
-                    <h1 className="text-4xl font-bold mb-6">Chat Room</h1>
+                    <div className="flex gap-2 items-center text-4xl font-bold mb-6">
+                        <IoIosArrowBack
+                            onClick={() => router.push("/")}
+                            className="cursor-pointer"
+                        />
+                        <h1 className="">Chat Room</h1>
+                    </div>
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-col gap-2" style={{ maxHeight: "60vh", overflowY: "auto" }}>
                             {messages.map((message, index) => (
