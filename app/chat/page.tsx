@@ -46,8 +46,30 @@ export default function Chat() {
         d: BigInt(0),
     });
 
+    const handleFileUpload = (
+        event: React.ChangeEvent<HTMLInputElement>,
+        type: string
+    ) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+
+            reader.onload = function () {
+                const content = reader.result;
+
+                if (file.type === "text/plain") {
+                    type === "Alice" ? setFileAlice(file) : setFileBob(file);
+                } else {
+                    const byteArray = new Uint8Array(content as ArrayBuffer);
+                    type === "Alice" ? setFileAlice(new File([byteArray], file.name)) : setFileBob(new File([byteArray], file.name));
+                }
+            }
+
+            reader.readAsArrayBuffer(file);
+        }
+    };
+
     useEffect(() => {
-        console.log("halooo")
         const savedKeys = localStorage.getItem("rsaKeys");
         if (savedKeys) {
             const { aliceKey: aliceSavedKey, bobKey: bobSavedKey } = JSON.parse(savedKeys);
@@ -151,7 +173,7 @@ export default function Chat() {
                                         <input
                                             id="file-upload-alice"
                                             type="file"
-                                            onChange={(e) => handleFileChange("Alice", e.target.files ? e.target.files[0] : null)}
+                                            onChange={(e) => handleFileUpload(e, "Alice")}
                                             className="hidden"
                                         />
                                     </div>
@@ -190,7 +212,7 @@ export default function Chat() {
                                         <input
                                             id="file-upload-bob"
                                             type="file"
-                                            onChange={(e) => handleFileChange("Bob", e.target.files ? e.target.files[0] : null)}
+                                            onChange={(e) => handleFileUpload(e, "Bob")}
                                             className="hidden"
                                         />
                                     </div>

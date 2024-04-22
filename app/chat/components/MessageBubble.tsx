@@ -1,7 +1,8 @@
 import { encryptRSA, decryptRSA } from "@/crypto/RSA";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FaArrowRight, FaEye, FaEyeSlash, FaDownload } from "react-icons/fa";
 import { saveAs } from "file-saver";
+import DownloadModal from "./DownloadModal";
 
 interface MessageProps {
   sender: string;
@@ -25,16 +26,19 @@ export const MessageBubble: React.FC<MessageProps> = ({
   const textColor = isSentByAlice ? "text-white" : "text-black";
 
   const [isEncrypted, setIsEncrypted] = useState<boolean>(true);
-  const [decryptedText, setDecryptedText] = useState<string>("");
+  const [showModal, setShowModal] = useState<boolean>(false);
+
+  const [fileRead, setFileRead] = useState<string | ArrayBuffer | Uint8Array>("" as string | ArrayBuffer | Uint8Array);
 
   const toggleEncryption = () => {
-    if (isEncrypted) {
-      setDecryptedText(decryptRSA(text, bobKey.d, bobKey.n).toString());
-    } else {
-      setDecryptedText(encryptRSA(decryptedText, bobKey.e, bobKey.n));
-    }
     setIsEncrypted((prev) => !prev);
   };
+
+  const handleTextDownload = () => {
+    const data = isEncrypted ? encryptRSA(text, bobKey.e, bobKey.n) : decryptRSA(encryptRSA(text, bobKey.e, bobKey.n), bobKey.d, bobKey.n).toString()
+    const blob = new Blob([data], { type: "text/plain;charset=utf-8" });
+    saveAs(blob, `${isEncrypted ? "encrypted" : "decrypted"}_message_${new Date().toLocaleTimeString()}.txt`);
+  }
 
   const handleFileDownload = () => {
     if (file) {
@@ -42,11 +46,43 @@ export const MessageBubble: React.FC<MessageProps> = ({
     }
   };
 
+  const handleSentFileDownload = (downloadAs: string) => {
+    if (file) {
+      const data = downloadAs === "ciphertext" ? encryptRSA(fileRead as string, bobKey.e, bobKey.n) : decryptRSA(encryptRSA(fileRead as string, bobKey.e, bobKey.n), bobKey.d, bobKey.n).toString()
+      const blob = new Blob([data], { type: file.type });
+      saveAs(blob, file.name);
+    }
+  }
+
+  const handleReadFile = (
+    type: string
+  ) => {
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onload = function () {
+        const content = reader.result;
+
+        if (file.type === "text/plain") {
+          setFileRead(content as string);
+        } else {
+            const byteArray = new Uint8Array(content as ArrayBuffer);
+            setFileRead(byteArray);
+        }
+      };
+
+      if (file.type === "text/plain") {
+        reader.readAsText(file);
+      } else {
+        reader.readAsArrayBuffer(file);
+      }
+    }
+  };
+
   return (
     <div
-      className={`flex justify-between mb-2 ${
-        isSentByAlice ? "flex-row" : "flex-row-reverse"
-      }`}
+      className={`flex justify-between mb-2 ${isSentByAlice ? "flex-row" : "flex-row-reverse"
+        }`}
     >
       <div
         className={`flex justify-between flex-col max-w-[40%] rounded-lg p-3 ${bubbleColor} ${textColor}`}
@@ -55,10 +91,10 @@ export const MessageBubble: React.FC<MessageProps> = ({
           {text}
         </p>
         {file && (
-          <div className="flex items-center mt-2">
+          <div className="flex items-center mt-2 text-sm">
             <span className="mr-2">File:</span>
             <button
-              className="text-xs font-semibold underline text-blue-500 cursor-pointer"
+              className="font-semibold underline text-blue-500 cursor-pointer"
               onClick={handleFileDownload}
             >
               {file.name}
@@ -71,17 +107,16 @@ export const MessageBubble: React.FC<MessageProps> = ({
       </div>
       <div className="w-full max-w-[20%] flex items-center justify-center">
         <FaArrowRight
-          className={`text-5xl ${
-            isSentByAlice ? "text-blue-600" : "text-green-600 rotate-180"
-          } mx-2`}
+          className={`text-5xl ${isSentByAlice ? "text-blue-600" : "text-green-600 rotate-180"
+            } mx-2`}
         />
       </div>
       <div className={`max-w-[40%] rounded-lg p-3 ${bubbleColor} ${textColor}`}>
         <p className="text-sm overflow-y-auto max-h-14 no-scrollbar">
-          {text && encryptRSA(text, bobKey.e, bobKey.n)}
+          {isEncrypted ? encryptRSA(text, bobKey.e, bobKey.n) : decryptRSA(encryptRSA(text, bobKey.e, bobKey.n), bobKey.d, bobKey.n).toString()}
         </p>
         {file && (
-          <p className="text-sm text-wrap overflow-y-auto overflow-x-hidden max-h-14 no-scrollbar">
+          <p className="text-sm text-wrap overflow-y-auto max-h-14 no-scrollbar">
             {encryptRSA(file.toString(), bobKey.e, bobKey.n)}
           </p>
         )}
@@ -95,17 +130,40 @@ export const MessageBubble: React.FC<MessageProps> = ({
               onClick={toggleEncryption}
             >
               {isEncrypted ? (
-                <FaEyeSlash className="" />
-              ) : (
                 <FaEye className="" />
+              ) : (
+                <FaEyeSlash className="" />
               )}
             </button>
-            <button className="text-sm font-semibold">
+            <button className="text-sm font-semibold" onClick={() => file ? setShowModal(true) : handleTextDownload()}>
               <FaDownload className="" />
             </button>
           </div>
         </div>
       </div>
+      {showModal && (
+        <DownloadModal closeModal={() => setShowModal(false)}>
+          <div className="flex flex-col items-center gap-4">
+            <h2 className="text-lg font-semibold text-black">Download Options</h2>
+            <div className="flex gap-2">
+              <button
+                className={`text-sm font-semibold cursor-pointer p-3 rounded-lg bg-green-600
+                  }`}
+                onClick={() => handleSentFileDownload("ciphertext")}
+              >
+                Download as Ciphertext File
+              </button>
+              <button
+                className={`text-sm font-semibold cursor-pointer p-3 rounded-lg bg-blue-500
+                  }`}
+                onClick={() => handleSentFileDownload("plaintext")}
+              >
+                Download as Decrypted File
+              </button>
+            </div>
+          </div>
+        </DownloadModal>
+      )}
     </div>
   );
 };
