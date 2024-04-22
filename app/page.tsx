@@ -1,5 +1,5 @@
 "use client"
-import { generateKeyRSA } from "@/crypto/RSA";
+import { generateKeyRSA, saveKeysToFile } from "@/crypto/RSA";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -78,20 +78,16 @@ export default function Home() {
     );
   };
 
+  const handleSaveKeysToFile = (sender: string) => {
+    const { n, e, d } = sender === "Alice" ? aliceKey : bobKey;
+    saveKeysToFile({ n, e }, { d, n }, sender);
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
       <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-[40%]">
         <h1 className="text-4xl font-bold mb-6">RSA Messaging</h1>
         <div className="flex items-center mb-6">
-          <select
-            value={bits}
-            onChange={(e) => setBits(parseInt(e.target.value))}
-            className="bg-gray-700 text-white py-2 px-4 rounded mr-4"
-          >
-            {[16, 32, 64, 128].map((option) => (
-              <option key={option} value={option}>{`${option} bits`}</option>
-            ))}
-          </select>
           <button
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-md"
             onClick={handleGenerateKey}
@@ -107,6 +103,14 @@ export default function Home() {
                 <KeyDetail label="N" value={aliceKey.n.toString()} />
                 <KeyDetail label="E" value={aliceKey.e.toString()} />
                 <KeyDetail label="D" value={aliceKey.d.toString()} />
+                <div className="flex justify-start">
+                  <button
+                    onClick={() => handleSaveKeysToFile("Alice")}
+                    className="text-white underline underline-offset-2 font-bold mt-2 w-3/4 text-left"
+                  >
+                    Save Alice's Keys
+                  </button>
+                </div>
               </div>
             </div>
             <div>
@@ -115,6 +119,14 @@ export default function Home() {
                 <KeyDetail label="N" value={bobKey.n.toString()} />
                 <KeyDetail label="E" value={bobKey.e.toString()} />
                 <KeyDetail label="D" value={bobKey.d.toString()} />
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => handleSaveKeysToFile("Bob")}
+                    className="text-white underline underline-offset-2 font-bold mt-2 w-3/4 text-right"
+                  >
+                    Save Bob's Keys
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -122,7 +134,7 @@ export default function Home() {
         {isGenerated && (
           <Link
             href="/chat"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-md mt-6 inline-block"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-md mt-6 inline-block w-full text-center"
             onClick={handleJumpToChat}
           >
             Start Chat

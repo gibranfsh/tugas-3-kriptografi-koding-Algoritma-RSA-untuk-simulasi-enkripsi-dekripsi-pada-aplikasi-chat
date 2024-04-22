@@ -55,7 +55,8 @@ const decryptRSA = (encryptedMessage: string, d: bigint, n: bigint): string => {
 // Fungsi untuk menyimpan kunci ke file
 const saveKeysToFile = (
   publicKey: { e: bigint; n: bigint },
-  privateKey: { d: bigint; n: bigint }
+  privateKey: { d: bigint; n: bigint },
+  person: string
 ) => {
   const publicKeyPEM =
     `-----BEGIN PUBLIC KEY-----\n` +
@@ -82,8 +83,8 @@ const saveKeysToFile = (
   });
 
   // Menyimpan blob sebagai file dengan ekstensi .txt
-  saveAs(publicKeyBlob, "public_key.pub.txt");
-  saveAs(privateKeyBlob, "private_key.pri.txt");
+  saveAs(publicKeyBlob, `${person}_public_key.pub.txt`);
+  saveAs(privateKeyBlob, `${person}_private_key.pem.txt`);
 };
 
 /* Fungsi-fungsi helper */
